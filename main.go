@@ -44,7 +44,7 @@ func (m myTheme) Size(name fyne.ThemeSizeName) float32 {
 	return theme.DefaultTheme().Size(name)
 }
 
-const GAME_LENGHT_MINS = 5
+const GAME_LENGHT_MINS = 3
 
 func main() {
 	words := NewTrie()
@@ -78,6 +78,7 @@ func main() {
 	inputSeed := container.NewVBox(lbl, entrySeed, btn)
 	wSeed.SetContent(inputSeed)
 	wSeed.Canvas().Focus(entrySeed)
+	wSeed.SetFixedSize(true)
 	wSeed.Show()
 
 	a.Run()
@@ -93,7 +94,20 @@ func LoadWordsListFromFile(trie *Trie) {
 }
 
 func end(window fyne.Window, words map[string]bool) {
-	d := dialog.NewInformation("Game over!", fmt.Sprintf("Puntaje: %d", len(words)), window)
+	scores := map[int]int{
+		4: 1,
+		5: 2,
+		6: 3,
+		7: 4,
+		8: 11,
+	}
+
+	points := 0
+	for w := range words {
+		points += scores[min(len(w), 8)]
+	}
+
+	d := dialog.NewInformation("Game over!", fmt.Sprintf("Puntaje: %d", points), window)
 	d.SetOnClosed(func() {
 		os.Exit(0)
 	})
