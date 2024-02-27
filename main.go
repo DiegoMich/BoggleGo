@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/validation"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
@@ -28,7 +29,6 @@ func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) colo
 	if name == "button" {
 		return color.RGBA{R: 26, G: 140, B: 255, A: 255}
 	}
-
 	return theme.DefaultTheme().Color(name, variant)
 }
 func (m myTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
@@ -44,7 +44,7 @@ func (m myTheme) Size(name fyne.ThemeSizeName) float32 {
 	return theme.DefaultTheme().Size(name)
 }
 
-const GAME_LENGHT_MINS = 3
+const GAME_LENGTH_MINS = 3
 
 func main() {
 	words := NewTrie()
@@ -70,6 +70,17 @@ func main() {
 		StartGame(seed, w, words)
 		wSeed.Close()
 	})
+
+	entrySeed.Validator = validation.NewRegexp("^[0-9]*$", "Invalid input")
+
+	lastText := entrySeed.Text
+	entrySeed.OnChanged = func(s string) {
+		if entrySeed.Validate() == nil {
+			lastText = entrySeed.Text
+			return
+		}
+		entrySeed.Text = lastText
+	}
 
 	entrySeed.OnSubmitted = func(s string) {
 		btn.Tapped(nil)
@@ -166,7 +177,7 @@ func StartGame(seed int64, w fyne.Window, words *Trie) {
 	}
 
 	// Timer
-	remainingTime := time.Date(0, 0, 0, 0, GAME_LENGHT_MINS, 0, 0, time.UTC)
+	remainingTime := time.Date(0, 0, 0, 0, GAME_LENGTH_MINS, 0, 0, time.UTC)
 	remainingTimeString := remainingTime.Format("4:05")
 	timer := widget.NewLabel(remainingTimeString)
 	timer.Alignment = fyne.TextAlignCenter
