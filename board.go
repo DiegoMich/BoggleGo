@@ -5,6 +5,7 @@ import (
 )
 
 type Cell struct {
+	id        int8
 	neighbors []*Cell
 	value     string
 	visited   bool
@@ -51,10 +52,15 @@ func NewBoard(dice []string) *Board {
 
 	b := Board{&c1, &c2, &c3, &c4, &c5, &c6, &c7, &c8,
 		&c9, &c10, &c11, &c12, &c13, &c14, &c15, &c16}
+
+	for i := range b {
+		b[i].id = int8(i + 1)
+	}
+
 	return &b
 }
 
-func WordExists(runes []rune, cells []*Cell) bool {
+func WordExists(runes []rune, cells []*Cell, path *[]int8) bool {
 	//Exit condition: found
 	if len(runes) == 0 {
 		return true
@@ -69,7 +75,8 @@ func WordExists(runes []rune, cells []*Cell) bool {
 		}
 		if strings.ToLower(c.value) == l {
 			c.visited = true
-			if WordExists(runes[1:], c.neighbors) {
+			if WordExists(runes[1:], c.neighbors, path) {
+				*path = append(*path, c.id)
 				return true
 			}
 			c.visited = false

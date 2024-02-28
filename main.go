@@ -14,6 +14,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"image/color"
 	"os"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -162,12 +163,39 @@ func StartGame(seed int64, w fyne.Window, words *Trie) {
 	entry.PlaceHolder = "Ingresa la palabra..."
 	entry.OnSubmitted = func(s string) {
 		runes := []rune(strings.ReplaceAll(strings.ToLower(s), "qu", "q"))
-		found := WordExists(runes, *board) && words.Search(s)
+
+		var path []int8
+		found := WordExists(runes, *board, &path) && words.Search(s)
 		_, exists := guessedMap[s]
 		if found && !exists {
 			guessedWords = append(guessedWords, s)
 			sort.Strings(guessedWords)
 			guessedMap[s] = true
+
+			slices.Reverse(path)
+			fmt.Printf("Word '%s' found with path: %v\n", s, path)
+
+			// Flash found word
+			go func() {
+				for _, b := range buttons {
+					b.(*widget.Button).Importance = widget.MediumImportance
+					b.Refresh()
+				}
+				for _, j := range path {
+					for i, b := range buttons {
+						if int8(i+1) == j {
+							b.(*widget.Button).Importance = widget.WarningImportance
+							b.Refresh()
+							time.Sleep(time.Millisecond * 50)
+						}
+					}
+				}
+				time.Sleep(time.Millisecond * 200)
+				for _, b := range buttons {
+					b.(*widget.Button).Importance = widget.MediumImportance
+					b.Refresh()
+				}
+			}()
 		}
 		board.Reset()
 
