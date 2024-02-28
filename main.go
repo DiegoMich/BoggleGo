@@ -3,6 +3,14 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image/color"
+	"os"
+	"slices"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
@@ -12,13 +20,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"image/color"
-	"os"
-	"slices"
-	"sort"
-	"strconv"
-	"strings"
-	"time"
 )
 
 // Theme customization
@@ -53,6 +54,10 @@ func main() {
 
 	a := app.New()
 	a.Settings().SetTheme(&myTheme{})
+
+	res, _ := fyne.LoadResourceFromPath("resources/icon.png")
+	a.SetIcon(res)
+
 	w := a.NewWindow("BoggleGo")
 	wSeed := a.NewWindow("BoogleGo - Seed")
 
